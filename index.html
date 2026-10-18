@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Elegí tu propio regalo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --card:#ffffff;--ink:#3a0610;--soft:#ffd6da;--accent:#d4001f;--accent2:#ff5a6e;--on-accent:#fff;
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--card:#2b0710;--ink:#ffe8e4;--soft:#5a1a26;--accent:#ff5a6e}
+}
+:root[data-theme="dark"]{--card:#2b0710;--ink:#ffe8e4;--soft:#5a1a26;--accent:#ff5a6e}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;min-height:100%}
+body{font-family:var(--sans);color:var(--ink);background:#b3001b;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:16px;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:-2;background:linear-gradient(135deg,#e0102f,#a10018,#ff3b52,#a10018);background-size:300% 300%;animation:flow 14s ease infinite}
+@keyframes flow{50%{background-position:100% 100%}}
+.hearts{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.hearts span{position:absolute;bottom:-10vh;color:#fff;opacity:.22;animation:rise linear infinite}
+@keyframes rise{to{transform:translateY(-120vh) rotate(25deg)}}
+
+main{width:100%;max-width:560px}
+.screen{display:none;background:var(--card);border-radius:24px;padding:28px 24px;box-shadow:0 18px 50px rgba(60,0,10,.45);animation:enter .5s cubic-bezier(.2,.9,.3,1.2)}
+.screen.on{display:block}
+@keyframes enter{from{opacity:0;transform:translateY(26px) scale(.96)}}
+
+h1,h2{font-family:var(--serif);font-weight:900;line-height:1.05;margin:0 0 12px;color:var(--accent)}
+h1{font-size:clamp(2.3rem,9vw,3.4rem)}
+h2{font-size:clamp(1.5rem,6vw,2rem)}
+p{line-height:1.55;margin:0 0 14px;font-size:1.05rem}
+.big{font-size:3.2rem;display:block;margin-bottom:8px}
+.btn{font:700 1.05rem var(--sans);background:var(--accent);color:var(--on-accent);border:0;border-radius:999px;padding:14px 28px;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.25);transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.btn:focus-visible,.opt:focus-visible{outline:3px solid var(--accent2);outline-offset:3px}
+.btn.ghost{background:transparent;color:var(--accent);box-shadow:none;border:2px solid var(--accent);padding:10px 20px;font-size:.95rem;margin-top:14px}
+.wobble{display:inline-block;animation:wob 2.4s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg) scale(1.08)}}
+
+.meta{display:flex;justify-content:space-between;font-size:.9rem;font-weight:700;margin-bottom:8px;color:var(--accent)}
+.track{height:8px;background:var(--soft);border-radius:8px;overflow:hidden;margin-bottom:4px}
+.fill{height:100%;width:0;background:var(--accent);border-radius:8px;transition:width .5s}
+.meta+.track{margin-bottom:22px}
+#qtext{font-size:clamp(1.25rem,5vw,1.6rem)}
+.opt{display:block;width:100%;text-align:left;font:600 1.02rem/1.4 var(--sans);color:var(--ink);background:transparent;border:2px solid var(--soft);border-radius:16px;padding:14px 16px;margin-bottom:10px;cursor:pointer;animation:pop .45s both;transition:transform .15s,border-color .15s,background .15s}
+@keyframes pop{from{opacity:0;transform:translateX(-24px)}}
+.opt:hover{border-color:var(--accent);transform:translateX(5px)}
+.opt.sel{background:var(--accent);border-color:var(--accent);color:var(--on-accent);animation:pulse .4s}
+@keyframes pulse{50%{transform:scale(1.04)}}
+.opts.lock .opt{pointer-events:none}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,40px);background:#fff;color:#a10018;font-weight:700;padding:12px 20px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;transition:.35s;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+.lens{font-size:4rem;display:inline-block;animation:scan 1.3s ease-in-out infinite}
+@keyframes scan{0%,100%{transform:translateX(-50px) rotate(-15deg)}50%{transform:translateX(50px) rotate(15deg)}}
+#loading{text-align:center}
+.dots::after{content:"";animation:dots 1.2s steps(4) infinite}
+@keyframes dots{25%{content:"."}50%{content:".."}75%{content:"..."}}
+
+#result{text-align:center;position:relative}
+.stamp{display:inline-block;border:4px solid var(--accent);color:var(--accent);font:900 1.5rem var(--serif);padding:6px 18px;border-radius:10px;transform:rotate(-7deg);margin:4px 0 20px;animation:slam .55s cubic-bezier(.2,1.5,.4,1) .2s both}
+@keyframes slam{from{opacity:0;transform:rotate(-7deg) scale(3.2)}}
+.ticket{border:3px dashed var(--accent);border-radius:20px;padding:22px 16px;animation:enter .6s 1s both}
+.ticket .big{animation:bounce 1.4s 1.5s ease-in-out infinite}
+@keyframes bounce{50%{transform:translateY(-10px) scale(1.08)}}
+small{display:block;opacity:.75;margin-top:6px;font-size:.85rem}
+.firma{font:900 1.7rem var(--serif);color:var(--accent);margin:0 0 8px}
+#conf{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:5}
+#conf i{position:absolute;top:-20px;width:10px;height:16px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="hearts" id="hearts" aria-hidden="true"></div>
+<div id="conf" aria-hidden="true"></div>
+
+<main>
+  <section class="screen on" id="intro">
+    <span class="big wobble">❤️</span>
+    <h1>Elegí tu propio regalo</h1>
+    <p>Examen de criterio de nivel experto: siete preguntas, sin apuro.</p>
+    <p>El sistema corrige solo y detecta quién tiene la razón. Se recomienda no dudar.</p>
+    <button class="btn" id="go">Empezar el examen</button>
+  </section>
+
+  <section class="screen" id="quiz">
+    <div class="meta"><span id="cnt"></span><span>Dificultad: extrema</span></div>
+    <div class="track"><div class="fill" id="bar"></div></div>
+    <h2 id="qtext"></h2>
+    <div class="opts" id="opts"></div>
+  </section>
+
+  <section class="screen" id="loading">
+    <span class="lens">🔍</span>
+    <h2>Corrigiendo con lupa<span class="dots"></span></h2>
+    <p>Comparando con la respuesta correcta.</p>
+  </section>
+
+  <section class="screen" id="result">
+    <div class="stamp">¡Tenías razón!</div>
+    <div class="ticket">
+      <span class="big" id="rEmoji"></span>
+      <h2 id="rName"></h2>
+      <p id="rDesc"></p>
+      <p><strong>Feliz Día de la Madre.</strong> Con todo el amor de</p>
+      <p class="firma">Male, Agus y Pepe ❤️</p>
+      <small>Sin vencimiento. Sin cambios por indecisión.</small>
+    </div>
+    <button class="btn ghost" id="again">Volver a empezar</button>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+// t = taza, j = jogging, z = zapatillas (nunca se muestra)
+var Q=[
+ {q:"Llega un gatito nuevo a la casa y hay que bautizarlo hoy mismo. ¿Cuál es el nombre indiscutible?",o:[
+  ["Canela","t"],["Nube","j"],["Rayo","z"]]},
+ {q:"Una novela arranca con una sola frase. ¿Cuál te obliga a seguir leyendo?",o:[
+  ["“Esa tarde llovía y la casa olía a algo recién hecho.”","t"],
+  ["“Era sábado y el mundo podía esperar.”","j"],
+  ["“Salió sin avisar, y el camino hizo el resto.”","z"]]},
+ {q:"Hay que pintar una pared entera y la decisión es definitiva (sí, ya sabemos que es difícil). ¿Qué color?",o:[
+  ["Caramelo","t"],["Gris humo","j"],["Azul profundo","z"]]},
+ {q:"Un genio concede un deseo chiquito pero definitivo. ¿Cuál pedís?",o:[
+  ["Que las mañanas duren el doble","t"],
+  ["Que las noches duren el doble","j"],
+  ["Que los viajes duren el doble","z"]]},
+ {q:"Por un día te convertís en un animal de la Patagonia. ¿Cuál elegís?",o:[
+  ["Pingüino, cuidando su nido","t"],
+  ["Lobo marino, tirado al sol sin hacer nada","j"],
+  ["Guanaco, recorriendo la meseta","z"]]},
+ {q:"Entrás a un catálogo de juegos de Xbox y solo podés juzgar por el nombre. ¿Cuál descargás?",o:[
+  ["Cupcake Kingdom","t"],["Siesta Master 3000","j"],["Turbo Zapallos","z"]]},
+ {q:"Armás un moodboard y le falta el título. ¿Cuál es el mejor?",o:[
+  ["Hecho en casa","t"],["Sin apuro","j"],["Más lejos","z"]]}
+];
+var TB={t:"Olor a vainilla y pan recién horneado",j:"Una siesta larga y ninguna alarma",z:"Un camino largo y el horizonte adelante"};
+var V={
+ t:{e:"☕",n:"Vale por una taza de Snoopy",d:"Para que el cafecito (y lo dulce que lo acompañe) sepa todavía mejor."},
+ j:{e:"👖",n:"Vale por un jogging de Adidas",d:"Ese que tanto te gustó. Comodidad aprobada por unanimidad."},
+ z:{e:"👟",n:"Vale por unas zapatillas",d:"Para seguir caminando con rumbo y con estilo."}
+};
+var $=function(s){return document.querySelector(s)};
+var i,sc,tm,qs,tb;
+
+function show(id){document.querySelectorAll(".screen").forEach(function(s){s.classList.toggle("on",s.id===id)})}
+function shuffle(a){return a.map(function(x){return[Math.random(),x]}).sort(function(a,b){return a[0]-b[0]}).map(function(x){return x[1]})}
+function toast(m){var t=$("#toast");t.textContent=m;t.classList.add("on");setTimeout(function(){t.classList.remove("on")},2200)}
+
+function start(){sc={t:0,j:0,z:0};i=0;tb=false;qs=Q.slice();show("quiz");ask()}
+
+function ask(){
+  var q=qs[i],box=$("#opts");
+  $("#cnt").textContent="Pregunta "+(i+1)+" de "+qs.length;
+  $("#qtext").textContent=q.q;
+  $("#bar").style.width=(i/qs.length*100)+"%";
+  box.innerHTML="";box.classList.remove("lock");
+  shuffle(q.o).forEach(function(o,n){
+    var b=document.createElement("button");
+    b.className="opt";b.style.animationDelay=(n*90)+"ms";
+    b.textContent=o[0];b.dataset.k=o[1];
+    b.onclick=function(){pick(b)};
+    box.appendChild(b);
+  });
+}
+
+function pick(b){
+  $("#opts").classList.add("lock");
+  b.classList.add("sel");
+  sc[b.dataset.k]++;
+  setTimeout(next,600);
+}
+
+function next(){
+  i++;
+  if(i>=qs.length){
+    var m=Math.max(sc.t,sc.j,sc.z);
+    var tied=Object.keys(sc).filter(function(k){return sc[k]===m});
+    if(tied.length>1&&!tb){
+      tb=true;
+      qs.push({q:"Última pregunta, la que desempata. ¿Qué escena elegís vivir hoy?",o:tied.map(function(k){return[TB[k],k]})});
+    }
+  }
+  if(i<qs.length){ask();return}
+  finish();
+}
+
+function finish(){
+  var top="t";
+  ["t","j","z"].forEach(function(k){if(sc[k]>sc[top])top=k});
+  $("#bar").style.width="100%";
+  show("loading");
+  setTimeout(function(){
+    $("#rEmoji").textContent=V[top].e;
+    $("#rName").textContent=V[top].n;
+    $("#rDesc").textContent=V[top].d;
+    show("result");
+    confetti();
+  },2800);
+}
+
+function confetti(){
+  var c=$("#conf"),cols=["#ff3b52","#ffffff","#ffc9cf","#ffd166","#d4001f"];
+  c.innerHTML="";
+  for(var n=0;n<80;n++){
+    var e=document.createElement("i");
+    e.style.left=Math.random()*100+"%";
+    e.style.background=cols[n%cols.length];
+    e.style.animationDuration=(2.5+Math.random()*2.5)+"s";
+    e.style.animationDelay=(1+Math.random()*1.5)+"s";
+    c.appendChild(e);
+  }
+  setTimeout(function(){c.innerHTML=""},8000);
+}
+
+(function(){
+  var h=$("#hearts");
+  for(var n=0;n<16;n++){
+    var s=document.createElement("span");
+    s.textContent="❤";
+    s.style.left=Math.random()*100+"%";
+    s.style.fontSize=(14+Math.random()*30)+"px";
+    s.style.animationDuration=(9+Math.random()*10)+"s";
+    s.style.animationDelay=(-Math.random()*14)+"s";
+    h.appendChild(s);
+  }
+})();
+
+$("#go").onclick=start;
+$("#again").onclick=function(){$("#conf").innerHTML="";start()};
+</script>
+</body>
+</html>
